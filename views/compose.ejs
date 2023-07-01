@@ -1,0 +1,21 @@
+<%- include("partials/header") -%>
+    <h1 class="mb-3">Compose</h1>
+
+    <form action="/compose" method="post">
+        <div class="mb-3">
+            <label for="inputTitle">Title</label>
+            <input type="text" class="form-control" id="inputTitle" placeholder="Post title..." name="inputTitle" autocomplete="off" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="inputPost">Post</label>
+            <textarea id="inputPost" rows="6" class="form-control" name="inputPost" placeholder="Post content..." autocomplete="off" required></textarea>
+
+        </div>
+
+        <button type="submit" name="button" class="btn btn-success">Publish</button>
+        <a href="/" class="btn btn-outline-secondary">Back To Home</a>
+    </form>
+
+
+<%- include("partials/footer") -%>
