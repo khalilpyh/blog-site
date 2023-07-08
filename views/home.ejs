@@ -5,9 +5,9 @@
     <% for (let i = 0; i < posts.length; i++){ %>
         <h1><%= posts[i].title %></h1>
         <p><%= posts[i].content.substring(0, 100) + " ..." %>
-            <a href="/posts/<%= posts[i].title %>">Read More</a>
+            <a href="/posts/<%= posts[i]._id %>" class="badge bg-secondary text-decoration-none">Read More</a>
         </p>
     <% }; %> 
 
-    <a class="btn btn-primary mt-4" href="/compose">Add New Post</a>
+    <a class="btn btn-info mt-4 text-white" href="/compose">Create Post</a>
 <%- include("partials/footer") -%>

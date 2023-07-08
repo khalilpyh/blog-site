@@ -1,7 +1,13 @@
-//requires modules
+/*
+  Author: Yuhao Peng
+  Last update: 2023-07-08
+*/
+
+//require modules
 const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
+const mongoose = require("mongoose");
 const _ = require("lodash");
 
 //dummy data
@@ -15,17 +21,39 @@ const contactContent =
 //initial express
 const app = express();
 
-app.set("view engine", "ejs");
+app.set("view engine", "ejs");  //use EJS
 
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static("public"));
+app.use(bodyParser.urlencoded({ extended: true }));   //use body parser
+app.use(express.static("public"));  //use local css
 
-//an array to store all the posts
-let posts = [];
+//connect to MongoDB and create a database to hold posts
+mongoose.connect("mongodb://127.0.0.1:27017/blogDB", {
+  useNewUrlParser: true,
+});
+
+//create post schema
+const postSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: [true, "Post title is required."],
+  },
+  content: String,
+});
+
+//create post model
+const Post = mongoose.model("Post", postSchema);
 
 //Home Page - Get
 app.get("/", function (req, res) {
-  res.render("home", { homeContent: homeStartingContent, posts: posts });
+  //retrieve all posts from database and display
+  Post.find()
+    .then((foundPosts) => {
+      res.render("home", {
+        homeContent: homeStartingContent,
+        posts: foundPosts,
+      });
+    })
+    .catch((err) => console.log(err));
 });
 
 //About Page - Get
@@ -45,29 +73,47 @@ app.get("/compose", function (req, res) {
 
 //Compose Page - Post
 app.post("/compose", function (req, res) {
-  //retrieve and store user input
-  const post = {
+  //retrieve and store post to the database
+  const post = new Post({
     title: req.body.inputTitle,
     content: req.body.inputPost,
-  };
+  });
 
-  posts.push(post);
-
-  res.redirect("/");
+  post.save()
+    .then(() => {
+      res.redirect("/"); //make sure to save the post to database before display it on home page
+    })
+    .catch((err) => console.log(err));
 });
 
-//Individual Post Route
-app.get("/posts/:postName", function (req, res) {
-  const requestedTitle = _.lowerCase(req.params.postName);
+//Individual Post Route - Get
+app.get("/posts/:postID", function (req, res) {
+  //get the requested post ID
+  const requestedID = req.params.postID;
 
-  posts.forEach(function (post) {
-    const postTitle = _.lowerCase(post.title);
+  //find the post from database by id and display
+  Post.findById(requestedID)
+    .then((foundPost) => {
+      res.render("post", { post: foundPost });
+    })
+    .catch((err) => console.log(err));
+});
 
-    //check if the post title matches the route param
-    if (postTitle === requestedTitle) {
-      res.render("post", { post: post });
-    }
-  });
+//Delete Post - Post
+app.post("/delete", function (req, res) {
+  //get the post ID to delete
+  const postToDeleteID = req.body.postIDHidden;
+
+  //delete the post from database
+  Post.findByIdAndRemove(postToDeleteID)
+    .then(() => {
+      console.log("Successfully deleted the post.");
+      //get back to home page
+      res.redirect("/");
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 });
 
 //setup port

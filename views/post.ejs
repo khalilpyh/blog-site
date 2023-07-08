@@ -1,6 +1,48 @@
 <%- include("partials/header") -%>
-    <h1><%= post.title  %></h1>
-    <p><%= post.content  %></p>
+    <h1><%= post.title %></h1>
+    <p><%= post.content %></p>
 
-    <a href="/" class="btn btn-outline-secondary mt-4">Back To Home</a>
+    <a href="/" class="btn btn-outline-primary mt-4">Back To Home</a>
+    <button
+    type="button"
+    name="deleteButton"
+    class="btn btn-danger mt-4 ms-1"
+    data-bs-toggle="modal"
+    data-bs-target="#deleteConfirmModal"
+    >
+    Delete Post
+    </button>
+
+    <!-- Modal -->
+    <div
+    class="modal fade"
+    id="deleteConfirmModal"
+    tabindex="-1"
+    aria-labelledby="deleteConfirmModal"
+    aria-hidden="true"
+    >
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-warning">
+            <div class="modal-header border-0 ">
+                <button
+                type="button"
+                class="btn-close btn-close-white"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+                ></button>
+            </div>
+            <div class="modal-body border-0">
+                Are you sure you want to <strong>Delete</strong> <%= post.title.substring(0, 10) + "..." %>?
+            </div>
+            <div class="modal-footer border-0">
+                <form action="/delete" method="post">
+                    <button type="submit" name="deleteButton" class="btn btn-danger">Delete</button>
+                    <input type="hidden" name="postIDHidden" value="<%= post._id %>" />
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </form>
+            </div>
+            </div>
+        </div>
+    </div>
+
 <%- include("partials/footer") -%>
